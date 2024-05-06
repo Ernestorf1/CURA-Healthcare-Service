@@ -52,7 +52,7 @@ public class CuraPage extends BasePage {
 	public boolean isLoginPageLoaded() {
 
 		try {
-			// Espera a que el título de la página sea igual a "Login"
+			
 			elementIsDisplayed(appointmentConf);
 
 			// Si la espera es exitosa, significa que la página se ha cargado correctamente
@@ -65,7 +65,7 @@ public class CuraPage extends BasePage {
 	}
 
 	public void usernameField() {
-		// TODO Auto-generated method stub
+		
 		write(usernameField, "John Doe");
 
 	}
@@ -76,7 +76,7 @@ public class CuraPage extends BasePage {
 	}
 
 	public void clicksLogin() {
-		// TODO Auto-generated method stub
+		
 		clickElement(loginButton);
 	}
 

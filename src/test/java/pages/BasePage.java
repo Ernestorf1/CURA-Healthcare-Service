@@ -2,6 +2,8 @@ package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -14,6 +16,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
  
@@ -70,7 +73,7 @@ public class BasePage {
     // crear esta instancia del WebElement y
     // Navegador (con sus metodos), para después a traves de la herencia reutilizar
     // en tod o el proyecto.
-    private WebElement Find(String locator) {
+    public WebElement Find(String locator) {
         // Espera hasta que el elemento este presente en la página
         // Utiliza el objeto wait para esperar, lleva dos p)arametros:
         // WebDriverWait(instanciaDelNavegador, tiempoDeEspera)
@@ -93,7 +96,7 @@ public class BasePage {
          * (Documento de Objeto del Modelo) de la página.
          */
         try {
-            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(locator)));
+            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(locator)));
             element.click();
         } catch (Exception e) {
             System.out.println("Error while clicking element: " + e.getMessage());
@@ -208,5 +211,54 @@ public class BasePage {
     public List<WebElement> bringMeAllElements(String locator) {
         return driver.findElements(By.className(locator));
     }
-}
+    public void maximizeWindow() {
+        try {
+            driver.manage().window().maximize();
+        } catch (Exception e) {
+            System.out.println("Error while maximizing window: " + e.getMessage());
+        }
+    }
 
+    public void executeJavaScript(String script) {
+        try {
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            js.executeScript(script);
+        } catch (Exception e) {
+            System.out.println("Error while executing JavaScript: " + e.getMessage());
+        }
+    }
+
+    public void acceptAlert() {
+        try {
+            driver.switchTo().alert().accept();
+        } catch (Exception e) {
+            System.out.println("Error while accepting alert: " + e.getMessage());
+        }
+    }
+
+    public void switchToWindowWithTitle(String title) {
+        String currentWindowHandle = driver.getWindowHandle();
+        Set<String> windowHandles = driver.getWindowHandles();
+
+        for (String windowHandle : windowHandles) {
+            driver.switchTo().window(windowHandle);
+            if (driver.getTitle().equals(title)) {
+                return;
+            }
+        }
+
+        driver.switchTo().window(currentWindowHandle);
+    }
+
+    public void switchToFrame(String frameNameOrId) {
+        driver.switchTo().frame(frameNameOrId);
+    }
+
+    public void switchToWindow(String windowHandle) {
+        driver.switchTo().window(windowHandle);
+    }
+
+    public void waitForElementToBeVisible(String locator) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(locator)));
+    }
+}

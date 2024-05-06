@@ -1,7 +1,11 @@
 Feature: Test CURA Healthcare Page functionality
-  @VamosATestearEsto
-  Scenario: As a user I enter a search criteria in Google
-    Given I am on the Google search page
-    When I enter a search criteria
-    And click on the search button
-    Then the results match the criteria
+
+  @Test1
+  Scenario: CuraPage Functionality Test
+    Given As a user open the browser and navigate to CuraPage
+    When User is on the landing Page
+    And clicks on the Appointment button
+    And User logs in with username field and password field
+    And fill out the appointment form
+    And submit the appointment form
+    Then User should see a confirmation page

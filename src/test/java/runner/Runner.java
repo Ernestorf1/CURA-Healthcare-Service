@@ -7,8 +7,7 @@ import pages.BasePage;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(features = "src\\test\\resources\\features", glue = "steps",
- plugin = {
-	"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:", "json:target/cucumber-reports.json" }/* , tags = "@Pera"*/ )
+ plugin = {"pretty","html:target/cucumber-reports" } , tags = "@Test1" )
 /*
  * *
  * Esta clase va a unir todas las funcionalidades, y los features

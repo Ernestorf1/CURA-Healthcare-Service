@@ -13,6 +13,8 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.Duration;
 import java.util.List;
@@ -33,6 +35,7 @@ public class BasePage {
      * WebDriverWait se usa para poner esperas explícitas en los elementos web
      */
     WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+    private static final Logger logger = LogManager.getLogger(BasePage.class);
  
     /* 
      * Configura el WebDriver para Chrome usando WebDriverManager.
@@ -40,6 +43,7 @@ public class BasePage {
     */
     static {
         WebDriverManager.chromedriver().setup();
+       
  
         //Inicializa la variable estática 'driver' con una instancia de ChromeDriver
         driver = new ChromeDriver();
@@ -57,7 +61,7 @@ public class BasePage {
         try {
             driver.get(url);
         } catch (Exception e) {
-            System.out.println("Error while navigating to URL: " + e.getMessage());
+            logger.error("Error while navigating to URL: " + e.getMessage());
         }
     }
 
@@ -65,7 +69,7 @@ public class BasePage {
         try {
             driver.quit();
         } catch (Exception e) {
-            System.out.println("Error while closing browser: " + e.getMessage());
+            logger.error("Error while closing browser: " + e.getMessage());
         }
     }
 
@@ -73,64 +77,67 @@ public class BasePage {
     // crear esta instancia del WebElement y
     // Navegador (con sus metodos), para después a traves de la herencia reutilizar
     // en tod o el proyecto.
-    public WebElement Find(String locator) {
-        // Espera hasta que el elemento este presente en la página
-        // Utiliza el objeto wait para esperar, lleva dos p)arametros:
-        // WebDriverWait(instanciaDelNavegador, tiempoDeEspera)
+    public WebElement Find(String locator, String selectorType) {
         WebElement element = null;
         try {
-            element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(locator)));
+            switch (selectorType.toLowerCase()) {
+                case "xpath":
+                    element = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(locator)));
+                    break;
+                case "cssselector":
+                    element = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(locator)));
+                    break;
+                case "id":
+                    element = wait.until(ExpectedConditions.presenceOfElementLocated(By.id(locator)));
+                    break;
+                    default:
+                    logger.warn("Unsupported selector type: " + selectorType);
+                    break;
+            }
         } catch (Exception e) {
-            System.out.println("Error while finding element: " + e.getMessage());
+            logger.error("Error while finding element: " + e.getMessage());
         }
         return element;
     }
 
-    public void clickElement(String locator) {
-        // Le agrego una espera al elemento web para cuando sea visible y este
-        // disponible para clickear
-        /*
-         * El objeto By en Selenium se utiliza para localizar elementos en la página
-         * web. En otras palabras, es una forma
-         * de decirle a Selenium cómo encontrar un elemento específico en el DOM
-         * (Documento de Objeto del Modelo) de la página.
-         */
+
+
+    public void clickElement(String locator, String selectorType) {
         try {
-            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(locator)));
+            WebElement element = Find(locator, selectorType);
             element.click();
         } catch (Exception e) {
-            System.out.println("Error while clicking element: " + e.getMessage());
+            logger.error("Error while clicking element: " + e.getMessage());
         }
-        // Dado un xpath (locator), va a localizarlo y va a hacer un click sobre este
-        // elemento
-        // Find(locator).click();
     }
 
-    public void write(String locator, String textToWrite) {
-        // Limpiar el campo de texto
-        Find(locator).clear();
-        
+    public void write(String locator, String textToWrite, String selectorType) {
+        try { // Limpiar el campo de texto
+        Find(locator, selectorType).clear();        
         // Enviar el texto al campo de texto
-        Find(locator).sendKeys(textToWrite);
+        Find(locator, selectorType).sendKeys(textToWrite);
+        }catch (Exception e) {
+            logger.error("Error while writing to element: " + e.getMessage());
+        }
     }
 
-    public void selectFromDropdownByValue(String locator, String valueToSelect) {
+    public void selectFromDropdownByValue(String locator, String valueToSelect, String selectorType) {
         // Creamos el dropdown
-        Select dropdown = new Select(Find(locator));
+        Select dropdown = new Select(Find(locator, selectorType));
         // Seleccionar por valor
         dropdown.selectByValue(valueToSelect);
     }
 
-    public void selectFromDropdownByIndex(String locator, int valueToSelect) {
+    public void selectFromDropdownByIndex(String locator, int valueToSelect, String selectorType) {
         // Creamos el dropdown
-        Select dropdown = new Select(Find(locator));
+        Select dropdown = new Select(Find(locator, selectorType));
         // Seleccionar por index
         dropdown.selectByIndex(valueToSelect);
     }
 
-    public void selectFromDropdownByText(String locator, String valueToSelect) {
+    public void selectFromDropdownByText(String locator, String valueToSelect, String selectorType) {
         // Creamos el dropdown
-        Select dropdown = new Select(Find(locator));
+        Select dropdown = new Select(Find(locator, selectorType));
         // Seleccionar por index
         dropdown.selectByVisibleText(valueToSelect);
     }
@@ -160,21 +167,21 @@ public class BasePage {
          */
     }
 
-    public void hoverOverElement(String locator) {
-        action.moveToElement(Find(locator));
+    public void hoverOverElement(String locator, String selectorType) {
+        action.moveToElement(Find(locator, selectorType));
     }
 
-    public void doubleClick(String locator) {
-        action.doubleClick(Find(locator));
+    public void doubleClick(String locator, String selectorType) {
+        action.doubleClick(Find(locator, selectorType));
     }
 
-    public void rightClick(String locator) {
-        action.contextClick(Find(locator));
+    public void rightClick(String locator, String selectorType) {
+        action.contextClick(Find(locator, selectorType));
     }
 
-    public String getValueFromTable(String locator, int row, int column) {
+    public String getValueFromTable(String locator, int row, int column,String selectorType) {
         String cellINeed = locator + "/table/tbody/tr[" + row + "]/td[" + column + "]";
-        return Find(cellINeed).getText();
+        return Find(cellINeed,selectorType).getText();
     }
 
     public void switchToiFrame(int iFrameIndex) {
@@ -189,23 +196,23 @@ public class BasePage {
         driver.switchTo().alert().dismiss();
     }
 
-    public String textFromElement(String locator) {
-        return Find(locator).getText();
+    public String textFromElement(String locator, String selectorType) {
+        return Find(locator, selectorType).getText();
     }
 
-    public boolean elementIsDisplayed(String locator) {
+    public boolean elementIsDisplayed(String locator, String selectorType) {
         // Devuelve un booleano si es mostrado o no
-        return Find(locator).isDisplayed();
+        return Find(locator, selectorType).isDisplayed();
     }
 
-    public boolean elementIsSelected(String locator) {
+    public boolean elementIsSelected(String locator, String selectorType) {
         // Devuelve un booleano si es seleccionado o no
-        return Find(locator).isSelected();
+        return Find(locator, selectorType).isSelected();
     }
 
-    public boolean elementIsEnabled(String locator) {
+    public boolean elementIsEnabled(String locator, String selectorType) {
         // Devuelve un booleano si esta habilitado o no
-        return Find(locator).isEnabled();
+        return Find(locator, selectorType).isEnabled();
     }
 
     public List<WebElement> bringMeAllElements(String locator) {
@@ -215,7 +222,7 @@ public class BasePage {
         try {
             driver.manage().window().maximize();
         } catch (Exception e) {
-            System.out.println("Error while maximizing window: " + e.getMessage());
+            logger.error("Error while maximizing window: " + e.getMessage());
         }
     }
 
@@ -224,7 +231,7 @@ public class BasePage {
             JavascriptExecutor js = (JavascriptExecutor) driver;
             js.executeScript(script);
         } catch (Exception e) {
-            System.out.println("Error while executing JavaScript: " + e.getMessage());
+            logger.error("Error while executing JavaScript: " + e.getMessage());
         }
     }
 
@@ -232,7 +239,7 @@ public class BasePage {
         try {
             driver.switchTo().alert().accept();
         } catch (Exception e) {
-            System.out.println("Error while accepting alert: " + e.getMessage());
+            logger.error("Error while accepting alert: " + e.getMessage());
         }
     }
 

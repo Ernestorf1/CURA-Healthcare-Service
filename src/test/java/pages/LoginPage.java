@@ -6,13 +6,7 @@ public class LoginPage extends BasePage {
 	private String usernameField = "//input[@id='txt-username']";
 	private String passwordField = "//input[@id='txt-password']";
 	private String loginButton = "//button[@id='btn-login']";
-	private String selectHospital = "//select[@id='combo_facility']";
-	private String checkBoxApply = "//label[@for='chk_hospotal_readmission']";
-	private String radioButtonProgram = "//label[normalize-space()='Medicare']";
-	private String selectVisitDate = "//input[@id='txt_visit_date']";
-	private String commentField = "//textarea[@id='txt_comment']";
-	private String bookAppointmentBtn = "//button[@id='btn-book-appointment']";
-	private String appointmentConf = "//h2[normalize-space()='Appointment Confirmation']";
+	
     public LoginPage(){
         super(driver);
     }

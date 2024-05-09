@@ -2,6 +2,7 @@ package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -90,9 +91,14 @@ public class BasePage {
                 case "id":
                     element = wait.until(ExpectedConditions.presenceOfElementLocated(By.id(locator)));
                     break;
-                    default:
+                default:
                     logger.warn("Unsupported selector type: " + selectorType);
                     break;
+            }
+            
+            // Agregar una comprobación adicional para manejar el caso en que el elemento no se encuentre
+            if (element == null) {
+                throw new NoSuchElementException("No se encontró ningún elemento con el selector: " + locator);
             }
         } catch (Exception e) {
             logger.error("Error while finding element: " + e.getMessage());
